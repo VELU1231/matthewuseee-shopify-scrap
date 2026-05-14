@@ -1,0 +1,471 @@
+{% comment %}
+  ┌─────────────────────────────────────────────────────────────┐
+  │  sections/custom-scent-wardrobe.liquid                      │
+  │  "BUILD YOUR SCENT WARDROBE"                                │
+  │                                                             │
+  │  3-column product/scent grid with:                          │
+  │  - Section H2 heading                                       │
+  │  - Blocks: scent name, adjective tags, occasion, image,     │
+  │    CTA button                                               │
+  │  - Stacks to single column on mobile                        │
+  │                                                             │
+  │  Docs:                                                      │
+  │  shopify.dev/docs/storefronts/themes/architecture/sections  │
+  └─────────────────────────────────────────────────────────────┘
+{% endcomment %}
+
+{%- liquid
+  assign scent_blocks = section.blocks | where: 'type', 'scent'
+  assign cols = section.settings.columns | default: 3
+-%}
+
+<section
+  id="custom-scent-wardrobe-{{ section.id }}"
+  class="scent-wardrobe"
+  aria-label="{{ section.settings.heading | escape }}"
+>
+  <div class="scent-wardrobe__inner page-width">
+
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="scent-wardrobe__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.heading != blank -%}
+      <h2 class="scent-wardrobe__heading">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.subheading != blank -%}
+      <p class="scent-wardrobe__subheading">{{ section.settings.subheading }}</p>
+    {%- endif -%}
+
+    {%- if scent_blocks.size > 0 -%}
+      <ul
+        class="scent-wardrobe__grid"
+        role="list"
+        style="--wardrobe-cols: {{ cols }};"
+      >
+        {%- for block in scent_blocks -%}
+          {%- liquid
+            assign image = block.settings.image
+            assign tags_raw = block.settings.tags
+            assign tags_list = tags_raw | split: ','
+          -%}
+          <li class="scent-wardrobe__item" {{ block.shopify_attributes }}>
+
+            <div class="scent-wardrobe__image-wrap">
+              {%- if image != blank -%}
+                {{
+                  image
+                  | image_url: width: 800
+                  | image_tag:
+                    loading: 'lazy',
+                    class: 'scent-wardrobe__image',
+                    alt: block.settings.name | escape,
+                    widths: '400, 600, 800'
+                }}
+              {%- else -%}
+                <div class="scent-wardrobe__image-placeholder">
+                  {{ 'product-1' | placeholder_svg_tag: 'scent-wardrobe__image' }}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.badge != blank -%}
+                <span class="scent-wardrobe__badge">{{ block.settings.badge | escape }}</span>
+              {%- endif -%}
+            </div>
+
+            <div class="scent-wardrobe__content">
+              {%- if block.settings.name != blank -%}
+                <h3 class="scent-wardrobe__name">{{ block.settings.name | escape }}</h3>
+              {%- endif -%}
+
+              {%- if tags_raw != blank -%}
+                <ul class="scent-wardrobe__tags" role="list" aria-label="Descriptors">
+                  {%- for tag in tags_list -%}
+                    {%- unless tag == blank -%}
+                      <li class="scent-wardrobe__tag">{{ tag | strip | escape }}</li>
+                    {%- endunless -%}
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+
+              {%- if block.settings.occasion != blank -%}
+                <p class="scent-wardrobe__occasion">
+                  <span class="scent-wardrobe__occasion-icon" aria-hidden="true">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                      <polyline points="6,3 6,6 8,8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                    </svg>
+                  </span>
+                  {{ block.settings.occasion | escape }}
+                </p>
+              {%- endif -%}
+
+              {%- if block.settings.description != blank -%}
+                <p class="scent-wardrobe__description">{{ block.settings.description }}</p>
+              {%- endif -%}
+
+              {%- if block.settings.btn_label != blank -%}
+                <a
+                  href="{{ block.settings.btn_url | default: '#' }}"
+                  class="scent-wardrobe__btn btn"
+                >
+                  {{- block.settings.btn_label | escape -}}
+                </a>
+              {%- endif -%}
+            </div>
+
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+  </div>
+</section>
+
+<style>
+  #custom-scent-wardrobe-{{ section.id }} {
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.bg_color }};
+    color: {{ section.settings.text_color }};
+    text-align: {{ section.settings.text_alignment }};
+  }
+
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 0.75rem;
+  }
+
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__heading {
+    font-size: clamp(2.25rem, 4.8vw, 3rem);
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+    color: {{ section.settings.text_color }};
+  }
+
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__subheading {
+    font-size: 1rem;
+    opacity: 0.75;
+    margin-bottom: 3rem;
+    max-width: 520px;
+    {% if section.settings.text_alignment == 'center' %}margin-left: auto; margin-right: auto;{% endif %}
+  }
+
+  /* Grid */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--wardrobe-cols, 3), 1fr);
+    gap: 2rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Card */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__item {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    background-color: {{ section.settings.card_bg }};
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* Image */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__image-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+  }
+
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__image,
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__image-placeholder svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__item:hover .scent-wardrobe__image {
+    transform: scale(1.03);
+  }
+
+  /* Badge */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #000;
+    color: #fff;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+
+  /* Content */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__content {
+    padding: 0 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+    text-align: {{ section.settings.text_alignment }};
+  }
+
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__name {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    margin: 0;
+    color: {{ section.settings.text_color }};
+  }
+
+  /* Tags */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    {% if section.settings.text_alignment == 'center' %}justify-content: center;{% endif %}
+  }
+
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__tag {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    padding: 3px 10px;
+    border-radius: 40px;
+    opacity: 0.7;
+  }
+
+  /* Occasion */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__occasion {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    opacity: 0.65;
+    margin: 0;
+  }
+
+  /* Description */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__description {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  /* CTA */
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    padding: 12px 20px;
+    background-color: #000;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+  }
+
+  #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__btn:hover {
+    background-color: #a6a6a6;
+  }
+
+  /* Mobile */
+  @media (max-width: 749px) {
+    #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__grid {
+      grid-template-columns: 1fr;
+    }
+
+    #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__heading {
+      font-size: 1.75rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Scent Wardrobe",
+  "tag": "section",
+  "class": "section-scent-wardrobe",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Our Collection"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "BUILD YOUR SCENT WARDROBE"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Three distinct expressions. One for every version of you."
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns (desktop)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 20,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 20,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "scent",
+      "name": "Scent",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Product image"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge label (e.g. Best Seller)"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Scent name",
+          "default": "GENTLEMAN"
+        },
+        {
+          "type": "text",
+          "id": "tags",
+          "label": "Descriptor tags (comma-separated)",
+          "default": "Bold, Magnetic, Modern",
+          "info": "e.g. Bold, Magnetic, Modern"
+        },
+        {
+          "type": "text",
+          "id": "occasion",
+          "label": "Wear occasion",
+          "default": "Daily wear · Office · Evening"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Short description"
+        },
+        {
+          "type": "text",
+          "id": "btn_label",
+          "label": "Button label",
+          "default": "SHOP NOW"
+        },
+        {
+          "type": "url",
+          "id": "btn_url",
+          "label": "Button URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scent Wardrobe",
+      "blocks": [
+        {
+          "type": "scent",
+          "settings": {
+            "name": "GENTLEMAN",
+            "tags": "Bold, Magnetic, Modern",
+            "occasion": "Daily wear · Office · Evening",
+            "btn_label": "SHOP GENTLEMAN"
+          }
+        },
+        {
+          "type": "scent",
+          "settings": {
+            "name": "LUMIÈRE DE JOUR",
+            "tags": "Fresh, Light, Refined",
+            "occasion": "Morning · Casual · Weekend",
+            "btn_label": "SHOP LUMIÈRE"
+          }
+        },
+        {
+          "type": "scent",
+          "settings": {
+            "name": "NOIR SILLAGE",
+            "tags": "Dark, Intense, Mysterious",
+            "occasion": "Evening · Date night · Events",
+            "btn_label": "SHOP NOIR"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

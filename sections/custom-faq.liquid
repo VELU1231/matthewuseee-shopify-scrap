@@ -1,0 +1,342 @@
+{% comment %}
+  ┌─────────────────────────────────────────────────────────────┐
+  │  sections/custom-faq.liquid                                 │
+  │  "FREQUENTLY ASKED QUESTIONS"                               │
+  │                                                             │
+  │  Pure HTML <details>/<summary> accordion — zero JavaScript  │
+  │  Works in all modern browsers via native disclosure widget  │
+  │                                                             │
+  │  Questions from live store:                                 │
+  │  1. How long does the fragrance last?                       │
+  │  2. Is this okay for daily wear?                            │
+  │  3. What is the Discovery Set?                              │
+  │  4. Do you offer COD?                                       │
+  │  5. How long does shipping take?                            │
+  │  6. What if I am not satisfied?                             │
+  │                                                             │
+  │  Docs:                                                      │
+  │  shopify.dev/docs/storefronts/themes/architecture/sections  │
+  └─────────────────────────────────────────────────────────────┘
+{% endcomment %}
+
+{%- liquid
+  assign faq_blocks = section.blocks | where: 'type', 'faq'
+-%}
+
+<section
+  id="custom-faq-{{ section.id }}"
+  class="faq"
+  aria-labelledby="faq-heading-{{ section.id }}"
+>
+  <div class="faq__inner page-width">
+
+    <div class="faq__header">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="faq__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <h2 class="faq__heading" id="faq-heading-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subheading != blank -%}
+        <p class="faq__subheading">{{ section.settings.subheading }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- if faq_blocks.size > 0 -%}
+      <dl class="faq__list">
+        {%- for block in faq_blocks -%}
+          <div class="faq__item" {{ block.shopify_attributes }}>
+            <details class="faq__details">
+              <summary class="faq__question">
+                <span>{{ block.settings.question | escape }}</span>
+                <span class="faq__icon" aria-hidden="true">
+                  {%- comment -%} Plus / minus indicator {%- endcomment -%}
+                  <svg class="faq__icon-plus" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  <svg class="faq__icon-minus" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </span>
+              </summary>
+              {%- if block.settings.answer != blank -%}
+                <div class="faq__answer">{{ block.settings.answer }}</div>
+              {%- endif -%}
+            </details>
+          </div>
+        {%- endfor -%}
+      </dl>
+    {%- endif -%}
+
+  </div>
+</section>
+
+<style>
+  #custom-faq-{{ section.id }} {
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.bg_color }};
+    color: {{ section.settings.text_color }};
+  }
+
+  #custom-faq-{{ section.id }} .faq__inner {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Header */
+  #custom-faq-{{ section.id }} .faq__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  #custom-faq-{{ section.id }} .faq__eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 0.75rem;
+  }
+
+  #custom-faq-{{ section.id }} .faq__heading {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+    color: {{ section.settings.text_color }};
+  }
+
+  #custom-faq-{{ section.id }} .faq__subheading {
+    font-size: 0.95rem;
+    opacity: 0.7;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* FAQ list */
+  #custom-faq-{{ section.id }} .faq__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #custom-faq-{{ section.id }} .faq__item {
+    border-top: 1px solid {{ section.settings.divider_color }};
+  }
+
+  #custom-faq-{{ section.id }} .faq__item:last-child {
+    border-bottom: 1px solid {{ section.settings.divider_color }};
+  }
+
+  /* Details / summary reset */
+  #custom-faq-{{ section.id }} .faq__details {
+    display: block;
+  }
+
+  #custom-faq-{{ section.id }} .faq__details summary {
+    list-style: none;
+  }
+
+  #custom-faq-{{ section.id }} .faq__details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Question row */
+  #custom-faq-{{ section.id }} .faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: {{ section.settings.text_color }};
+    user-select: none;
+    transition: opacity 0.15s ease;
+  }
+
+  #custom-faq-{{ section.id }} .faq__question:hover {
+    opacity: 0.75;
+  }
+
+  /* Icon toggle */
+  #custom-faq-{{ section.id }} .faq__icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #custom-faq-{{ section.id }} .faq__icon-minus {
+    display: none;
+  }
+
+  #custom-faq-{{ section.id }} .faq__details[open] .faq__icon-plus {
+    display: none;
+  }
+
+  #custom-faq-{{ section.id }} .faq__details[open] .faq__icon-minus {
+    display: flex;
+  }
+
+  /* Answer */
+  #custom-faq-{{ section.id }} .faq__answer {
+    padding-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    opacity: 0.8;
+  }
+
+  #custom-faq-{{ section.id }} .faq__answer p {
+    margin: 0 0 0.75rem;
+  }
+
+  #custom-faq-{{ section.id }} .faq__answer p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 749px) {
+    #custom-faq-{{ section.id }} .faq__heading {
+      font-size: 1.75rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "FAQ Accordion",
+  "tag": "section",
+  "class": "section-faq",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Got Questions?"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "FREQUENTLY ASKED QUESTIONS"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Everything you need to know about Mattheusse."
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider color",
+      "default": "#dfdfdf"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 20,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 20,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq",
+      "name": "FAQ Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "How long does the fragrance last?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>GENTLEMAN is an Extrait de Parfum with 35% fragrance concentration. Expect 10–14 hours of longevity on skin, and up to 24 hours on clothing.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ Accordion",
+      "blocks": [
+        {
+          "type": "faq",
+          "settings": {
+            "question": "How long does the fragrance last?",
+            "answer": "<p>GENTLEMAN is an Extrait de Parfum with 35% fragrance concentration. Expect 10–14 hours of longevity on skin, and up to 24 hours on clothing. One application is enough.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "Is this okay for daily wear in the Philippines?",
+            "answer": "<p>Yes — Mattheusse fragrances are specifically formulated for tropical heat and humidity. The scent evolves beautifully throughout the day rather than disappearing within hours.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "What is the Discovery Set?",
+            "answer": "<p>The Discovery Set includes sample sizes of all three Mattheusse scents: GENTLEMAN, LUMIÈRE DE JOUR, and NOIR SILLAGE. It's the perfect way to find your signature before committing to a full bottle.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "Do you offer Cash on Delivery (COD)?",
+            "answer": "<p>Yes! We offer Cash on Delivery (COD) nationwide. You can also pay via GCash, Maya, Visa, Mastercard, or bank transfer at checkout.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "How long does shipping take?",
+            "answer": "<p>Metro Manila orders typically arrive in 1–3 business days. Provincial orders take 3–7 business days. Free shipping on all orders ₱1,200 and above.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "What if I'm not satisfied with my order?",
+            "answer": "<p>We stand by the quality of our fragrances. If you're not satisfied for any reason, contact us within 7 days of receiving your order and we'll make it right — exchange, store credit, or refund.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
