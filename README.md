@@ -1,12 +1,48 @@
-# Mattheuse — Shopify Clone Build
+# Mattheuse — Premium Fragrance Shopify Theme
 
-**Base theme:** Horizon v3.5.1 (free — https://themes.shopify.com/themes/horizon/styles/vivid)  
+**Status:** Production-Ready ✅  
+**Base theme:** Horizon v3.5.1 (Shopify OS 2.0)  
 **Market:** Philippines (PHP, GCash, Maya, COD)  
-**Fidelity goal:** 1:1 pixel-perfect clone of https://mattheuse.myshopify.com/
+**API Version:** 2024-10  
+
+A fully editable, professional Shopify theme built for premium fragrance brands. Deploy to any Shopify store with complete Theme Editor compatibility.
 
 ---
 
-## File Map
+## 🎯 Quick Start for Clients
+
+### Installation (5 minutes)
+
+1. **Download theme:**  
+   Clone or download from [GitHub](https://github.com/VELU1231/matthewuseee-shopify-scrap)
+
+2. **Upload to your Shopify store:**
+   - Go to Shopify Admin → Online Store → Themes
+   - Click "Add theme" → "Upload"  
+   - Select the downloaded `.zip` file
+
+3. **Customize in Theme Editor:**
+   - Click "Customize" on the uploaded theme
+   - Edit sections, text, images, and colors live
+   - Click "Save" when done
+
+4. **Publish:**
+   - Click "Publish" to make the theme live
+
+---
+
+## 🎨 What's Included
+
+✅ **11 Custom Sections** - Fully editable in Shopify Theme Editor  
+✅ **Responsive Design** - Perfect on desktop, tablet, mobile  
+✅ **Dynamic Liquid** - All content is live-editable  
+✅ **Horizon Integration** - Built on Shopify's modern OS 2.0 theme  
+✅ **Philippines Ready** - Supports PHP currency, GCash, Maya, COD  
+✅ **Premium Design** - Luxury fragrance aesthetic  
+
+---
+
+## 📁 Theme Structure
 
 ```
 mattheuse/
