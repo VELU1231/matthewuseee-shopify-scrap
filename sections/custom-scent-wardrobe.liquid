@@ -271,19 +271,19 @@
     justify-content: center;
     margin-top: auto;
     padding: 12px 20px;
-    background-color: #000;
-    color: #fff;
+    background-color: {{ section.settings.btn_bg }};
+    color: {{ section.settings.btn_text }};
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     text-decoration: none;
     border-radius: 5px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   #custom-scent-wardrobe-{{ section.id }} .scent-wardrobe__btn:hover {
-    background-color: #a6a6a6;
+    background-color: {{ section.settings.btn_hover }};
   }
 
   /* Mobile */
@@ -301,7 +301,7 @@
 {% schema %}
 {
   "name": "Scent Wardrobe",
-  "tag": "section",
+  "tag": "div",
   "class": "section-scent-wardrobe",
   "settings": [
     {
@@ -378,11 +378,27 @@
       "step": 4,
       "unit": "px",
       "default": 80
+    },
+    {
+      "type": "color",
+      "id": "btn_bg",
+      "label": "Button background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "btn_text",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover",
+      "label": "Button hover background",
+      "default": "#a6a6a6"
     }
   ],
   "blocks": [
-    {
-      "type": "scent",
       "name": "Scent",
       "settings": [
         {

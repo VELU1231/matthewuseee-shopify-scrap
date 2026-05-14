@@ -244,7 +244,9 @@
       class: 'hero__bg',
       loading: 'eager',
       fetchpriority: 'high',
-      alt: section.settings.bg_image.alt | escape
+      alt: section.settings.bg_image.alt | escape,
+      widths: '750, 1100, 1500, 1800, 2000',
+      sizes: '100vw'
   }}
 {%- elsif section.settings.bg_color != blank -%}
   {%- comment -%} Fallback solid color if no image uploaded {%- endcomment -%}

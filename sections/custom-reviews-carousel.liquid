@@ -187,11 +187,11 @@
   /* Active dot per slide — generated below */
   {% for i in (1..total) %}
     #shopify-section-{{ section_id }} .reviews__radio--{{ i }}:checked
-    ~ .reviews__carousel .reviews__track {
-      transform: translateX({{ i | minus: 1 | times: -100 }}%);
+    ~ .reviews__inner .reviews__carousel .reviews__track {
+      transform: translateX(-{{ i | minus: 1 | divided_by: cols_desktop | times: 100 }}%);
     }
     #shopify-section-{{ section_id }} .reviews__radio--{{ i }}:checked
-    ~ .reviews__dots .reviews__dot--{{ i }} {
+    ~ .reviews__inner .reviews__dots .reviews__dot--{{ i | minus: 1 | divided_by: cols_desktop | plus: 1 }} {
       opacity: 1;
     }
   {% endfor %}

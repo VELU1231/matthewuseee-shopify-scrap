@@ -53,6 +53,13 @@
     animation-play-state: paused;
   }
 
+  /* Respect prefers-reduced-motion (WCAG 2.1 AA) */
+  @media (prefers-reduced-motion: reduce) {
+    #shopify-section-{{ section.id }} .ticker__track {
+      animation: none;
+    }
+  }
+
   @keyframes ticker-scroll-{{ section.id }} {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-50%); }
@@ -91,7 +98,8 @@
 
 <div
   class="ticker__wrapper"
-  role="marquee"
+  role="region"
+  aria-live="off"
   aria-label="{{ section.settings.aria_label | escape }}"
 >
   {%- comment -%}
