@@ -168,13 +168,14 @@
   {%- comment -%} Image column {%- endcomment -%}
   <div class="discovery__image-col">
     {%- if section.settings.image != blank -%}
+      {%- assign _discovery_alt = section.settings.image.alt | default: section.settings.heading | escape -%}
       {{
         section.settings.image
         | image_url: width: 1200
         | image_tag:
           class: 'discovery__image',
           loading: 'lazy',
-          alt: section.settings.image.alt | default: section.settings.heading | escape
+          alt: _discovery_alt
       }}
     {%- else -%}
       {%- comment -%}
