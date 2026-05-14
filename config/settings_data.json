@@ -1,0 +1,118 @@
+{
+  "_comment": [
+    "config/settings_data.json",
+    "Horizon theme global settings — calibrated to match Mattheuse store.",
+    "",
+    "Docs:",
+    "  https://shopify.dev/docs/storefronts/themes/architecture/config/settings-data-json",
+    "  https://shopify.dev/docs/storefronts/themes/architecture/config/settings-schema-json",
+    "",
+    "HOW THIS FILE IS USED",
+    "  Shopify merges these values into theme.liquid via the `settings` Liquid object.",
+    "  Horizon outputs them as CSS custom properties in a <style> block in <head>.",
+    "  Our komradd.css.liquid overrides fonts on top of these settings.",
+    "",
+    "IMPORTANT — FONT NOTES",
+    "  Horizon's built-in font picker only supports system/Google fonts.",
+    "  HelveticaNowDisplay is NOT available via Shopify's font picker.",
+    "  We set a system font here and override everything with komradd.css.liquid.",
+    "  komradd.css.liquid must be loaded AFTER theme.css in layout/theme.liquid.",
+    "",
+    "COLOR TOKENS (all verified from live store CDN):",
+    "  Background: #FFFFFF",
+    "  Foreground:  #333333",
+    "  Headings:    #000000",
+    "  Primary btn bg:   #000000",
+    "  Primary btn text: #FFFFFF",
+    "  Primary btn hover: #A6A6A6",
+    "  Secondary btn border: #000000",
+    "  Input border: #DFDFDF",
+    "  In-stock:     #3ED660",
+    "  Out-of-stock: #C8C8C8",
+    "  Low-stock:    #EE9441",
+    "  Error:        #8B0000",
+    "  Success:      #006400"
+  ],
+  "current": {
+    "colors_body_bg": "#ffffff",
+    "colors_text": "#333333",
+    "colors_heading": "#000000",
+    "colors_link": "#000000",
+    "colors_link_hover": "#737373",
+
+    "colors_button_primary": "#000000",
+    "colors_button_primary_text": "#ffffff",
+    "colors_button_primary_hover": "#a6a6a6",
+    "colors_button_primary_border": "#000000",
+
+    "colors_button_secondary": "rgba(0,0,0,0)",
+    "colors_button_secondary_text": "#000000",
+    "colors_button_secondary_hover": "#dfdfdf",
+    "colors_button_secondary_border": "#000000",
+
+    "colors_input_bg": "#ffffff",
+    "colors_input_text": "#333333",
+    "colors_input_border": "#dfdfdf",
+    "colors_input_placeholder": "#999999",
+
+    "colors_selected_variant_bg": "#000000",
+    "colors_selected_variant_text": "#ffffff",
+
+    "colors_badge_in_stock": "#3ed660",
+    "colors_badge_out_of_stock": "#c8c8c8",
+    "colors_badge_low_stock": "#ee9441",
+    "colors_error": "#8b0000",
+    "colors_success": "#006400",
+
+    "colors_sale_badge_bg": "#000000",
+    "colors_sale_badge_text": "#ffffff",
+    "colors_announcement_bar_bg": "#000000",
+    "colors_announcement_bar_text": "#ffffff",
+    "colors_header_bg": "#ffffff",
+    "colors_header_text": "#000000",
+    "colors_footer_bg": "#000000",
+    "colors_footer_text": "#ffffff",
+
+    "type_body_font": "helvetica_neue_n4",
+    "type_body_font_size": 14,
+    "type_body_line_height": 1.6,
+    "type_heading_font": "helvetica_neue_n7",
+    "type_heading_line_height": 1.2,
+    "type_heading_letter_spacing": 0,
+
+    "style_border_radius_buttons": 5,
+    "style_border_radius_inputs": 5,
+    "style_border_radius_cards": 0,
+    "style_border_width_buttons": 2,
+    "style_border_width_inputs": 1,
+
+    "text_transform_buttons": "uppercase",
+    "text_transform_headings": "none",
+
+    "enable_animations": true,
+    "enable_hover_lift": true,
+    "hover_lift_amount": 4,
+    "enable_view_transitions": true,
+
+    "layout_page_width": 1200,
+    "layout_section_spacing": 80,
+    "layout_gutter": 40,
+
+    "cart_type": "drawer",
+    "enable_cart_upsell": false,
+    "enable_stock_badge": true,
+    "low_stock_threshold": 10,
+
+    "logo_width": 140,
+    "sticky_header": true,
+
+    "show_breadcrumbs": true,
+    "show_currency_code": true,
+    "currency_code_enabled": true,
+
+    "social_facebook_link": "https://www.facebook.com/mattheuse",
+    "social_instagram_link": "https://www.instagram.com/mattheuse",
+    "social_tiktok_link": "https://www.tiktok.com/@mattheuse"
+  },
+  "presets": {}
+}

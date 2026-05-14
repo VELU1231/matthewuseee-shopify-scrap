@@ -1,0 +1,275 @@
+/*
+ * komradd.css.liquid
+ * ─────────────────────────────────────────────────────────────
+ * Custom font + typography overrides for Shopify Horizon theme.
+ *
+ * This file uses the .css.liquid extension so Shopify processes
+ * it with the Liquid template engine before serving it as CSS.
+ * This lets us use the `asset_url` filter for self-hosted font
+ * files and the `settings` object for theme-editor values.
+ *
+ * Docs:
+ *   https://shopify.dev/docs/storefronts/themes/architecture
+ *   (assets section — .css.liquid support)
+ *   https://shopify.dev/docs/api/liquid/filters/asset_url
+ *
+ * HOW TO LOAD THIS FILE
+ * In layout/theme.liquid, inside <head>, add:
+ *   {{ 'komradd.css' | asset_url | stylesheet_tag }}
+ * (Shopify strips the .liquid extension automatically when
+ *  building the asset URL.)
+ *
+ * FONTS
+ * Upload the three HelveticaNowDisplay .ttf files to:
+ *   Shopify Admin → Content → Files
+ * Then reference them below via asset_url OR the Files URL.
+ * If fonts live in theme /assets/, use: asset_url filter.
+ * If fonts live in Admin Files (/cdn/shop/files/), use the
+ * full URL with version query string as shown in fallback.
+ * ─────────────────────────────────────────────────────────────
+ */
+
+/* ── @font-face declarations ─────────────────────────────── */
+/*
+ * asset_url resolves to your theme's /assets/ CDN path.
+ * Replace the filenames if you upload with different names.
+ * Ref: https://shopify.dev/docs/api/liquid/filters/asset_url
+ */
+
+@font-face {
+  font-family: 'HelveticaNowDisplay-Medium';
+  src: url('{{ "HelveticaNowDisplay-Medium.ttf" | asset_url }}') format('truetype');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HelveticaNowDisplay-ExtraBold';
+  src: url('{{ "HelveticaNowDisplay-ExtraBold.ttf" | asset_url }}') format('truetype');
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HelveticaNowDisplay-Regular';
+  src: url('{{ "HelveticaNowDisplay-Regular.ttf" | asset_url }}') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* ── Body & paragraph ────────────────────────────────────── */
+/*
+ * Horizon outputs font-family through CSS custom properties
+ * (--font-body--family, etc.) set by theme.liquid. We use
+ * !important here to override those declarations globally.
+ */
+body,
+.paragraph:not(.button),
+.paragraph > *,
+.text-block.paragraph :is(h1, h2, h3, h4, h5, h6) {
+  font-family: 'HelveticaNowDisplay-Medium', sans-serif !important;
+}
+
+/* ── Headings ────────────────────────────────────────────── */
+/*
+ * Horizon heading selectors mirror its own component classes
+ * (.h1, .h2, .text-block.h1, etc.). We target the same set
+ * to ensure overrides apply inside all section contexts.
+ */
+h1,
+.h1,
+.h1.h1,
+.text-block.h1 > *,
+.text-block.h1 :is(h1, h2, h3, h4, h5, h6) {
+  font-family: 'HelveticaNowDisplay-ExtraBold', sans-serif !important;
+  line-height: 1.2 !important;
+}
+
+h2,
+.h2.h2,
+.text-block.h2 > *,
+.text-block.h2 :is(h1, h2, h3, h4, h5, h6),
+h3,
+.h3.h3,
+.text-block.h3 > *,
+.text-block.h3 :is(h1, h2, h3, h4, h5, h6),
+h4,
+.h4.h4,
+.text-block.h4 > *,
+.text-block.h4 :is(h1, h2, h3, h4, h5, h6) {
+  font-family: 'HelveticaNowDisplay-ExtraBold', sans-serif;
+}
+
+/* ── Small utility: h5, h6, helper class ────────────────── */
+.small-p,
+.small-p *,
+h5,
+.h5.h5,
+.text-block.h5 > *,
+.text-block.h5 :is(h1, h2, h3, h4, h5, h6),
+h6,
+.h6.h6,
+.text-block.h6 > *,
+.text-block.h6 :is(h1, h2, h3, h4, h5, h6) {
+  font-family: 'HelveticaNowDisplay-Medium', sans-serif !important;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+/*
+ * Excludes utility buttons (close, remove, sticky ATC, etc.)
+ * that Horizon renders with their own size/padding contracts.
+ * text-transform: uppercase is the core brand rule.
+ */
+.button:not(
+    .button-secondary,
+    .button-unstyled,
+    .button--tertiary,
+    .quick-add__button--add,
+    .quick-add__button--choose,
+    .email-signup__button,
+    .close-button,
+    .sticky-add-to-cart__button,
+    .cart-items__remove
+  ),
+.button-secondary,
+.button[id^='BuyButtons-ProductSubmitButton-'] {
+  padding: 12px 20px !important;
+  min-height: unset !important;
+  line-height: 1;
+  text-transform: uppercase !important;
+  font-size: 16px;
+  min-width: 100px;
+  font-family: 'HelveticaNowDisplay-ExtraBold', sans-serif !important;
+}
+
+/* ── Utility classes ─────────────────────────────────────── */
+/* .big-p — large callout text (used in hero subheadings) */
+.big-p,
+.big-p * {
+  font-size: 20px !important;
+  letter-spacing: 1px;
+}
+
+/* ── FAQ accordion bottom border ─────────────────────────── */
+/*
+ * Horizon's <details> element doesn't add a bottom rule by
+ * default. This pseudo-element adds one after each closed item
+ * to match the original Mattheuse design.
+ */
+details.details::after {
+  content: '';
+  display: block;
+  height: 1px;
+  background-color: #000;
+  margin-top: 10px;
+}
+
+/* ── Restock Rocket app button ───────────────────────────── */
+/*
+ * Restock Rocket injects .restock-rocket-button into the
+ * product form. These rules normalise it to match the store's
+ * button design system.
+ * App: https://apps.shopify.com/restock-rocket
+ */
+.restock-rocket-button {
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+  border-radius: 5px !important;
+  text-transform: uppercase;
+  padding: 18px 10px !important;
+  height: unset !important;
+  min-height: unset !important;
+  background: #808080 !important;
+}
+
+/* ── Mobile overrides (≤ 749px) ──────────────────────────── */
+/*
+ * Horizon's mobile breakpoint is 750px (max-width: 749px).
+ * Font sizes are scaled down here; CSS custom property
+ * --font-paragraph--size is also overridden so Horizon's own
+ * components pick up the smaller size.
+ */
+@media (max-width: 749px) {
+  body,
+  .paragraph:not(.button),
+  .paragraph > *,
+  .text-block.paragraph :is(h1, h2, h3, h4, h5, h6) {
+    font-family: 'HelveticaNowDisplay-Medium', sans-serif !important;
+    font-size: 14px !important;
+  }
+
+  /* Visibility helpers */
+  .show-mobile {
+    display: block !important;
+  }
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* Override Horizon CSS custom property for paragraph size */
+  :root {
+    --font-paragraph--size: 13px !important;
+  }
+
+  .big-p,
+  .big-p * {
+    font-size: 15px !important;
+  }
+
+  /* Button size reduction on mobile */
+  .button:not(
+      .button-secondary,
+      .button-unstyled,
+      .button--tertiary,
+      .quick-add__button--add,
+      .quick-add__button--choose,
+      .email-signup__button,
+      .close-button,
+      .sticky-add-to-cart__button,
+      .cart-items__remove
+    ),
+  .button-secondary,
+  .button[id^='BuyButtons-ProductSubmitButton-'] {
+    padding: 10px 18px !important;
+    font-size: 14px;
+  }
+
+  /* Heading scale — mobile */
+  h1,
+  .h1.h1,
+  .text-block.h1 > *,
+  .text-block.h1 :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 34px !important;
+    line-height: 1.2 !important;
+  }
+
+  h2,
+  .h2.h2,
+  .text-block.h2 > *,
+  .text-block.h2 :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 28px !important;
+    line-height: 1.3 !important;
+  }
+
+  h3,
+  .h3.h3,
+  .text-block.h3 > *,
+  .text-block.h3 :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 20px !important;
+  }
+
+  h4,
+  .h4.h4,
+  .text-block.h4 > *,
+  .text-block.h4 :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+  }
+
+  .restock-rocket-button {
+    padding: 13px 10px !important;
+  }
+}

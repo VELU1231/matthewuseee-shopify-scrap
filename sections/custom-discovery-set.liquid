@@ -1,0 +1,366 @@
+{% comment %}
+  ┌─────────────────────────────────────────────────────────────┐
+  │  sections/custom-discovery-set.liquid                       │
+  │  Split-layout section: image left, text right.              │
+  │                                                             │
+  │  Replicates the Mattheuse "NOT SURE YET? START WITH THE     │
+  │  DISCOVERY SET." section with:                              │
+  │    • 50/50 image + text columns (stacks on mobile)          │
+  │    • H2 heading above scent list                            │
+  │    • List of 3 scent names (rendered from blocks)           │
+  │    • Single CTA button                                      │
+  │                                                             │
+  │  Docs:                                                      │
+  │  • image_url / image_tag → shopify.dev/docs/api/liquid/    │
+  │      filters/image_url                                      │
+  │  • section schema → shopify.dev/docs/storefronts/themes/   │
+  │      architecture/sections/section-schema                   │
+  └─────────────────────────────────────────────────────────────┘
+{% endcomment %}
+
+{%- liquid
+  assign image_side = section.settings.image_side
+  assign section_bg = section.settings.background_color
+  assign text_color = section.settings.text_color
+-%}
+
+<style>
+  /* ── Wrapper ───────────────────────────────────────────── */
+  #shopify-section-{{ section.id }} {
+    background-color: {{ section_bg }};
+    color: {{ text_color }};
+  }
+
+  #shopify-section-{{ section.id }} .discovery__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 560px;
+    {% if image_side == 'right' %}direction: rtl;{% endif %}
+  }
+
+  /* ── Image column ──────────────────────────────────────── */
+  #shopify-section-{{ section.id }} .discovery__image-col {
+    position: relative;
+    overflow: hidden;
+    {% if image_side == 'right' %}direction: ltr;{% endif %}
+  }
+
+  #shopify-section-{{ section.id }} .discovery__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Text column ───────────────────────────────────────── */
+  #shopify-section-{{ section.id }} .discovery__text-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 80px;
+    {% if image_side == 'right' %}direction: ltr;{% endif %}
+  }
+
+  #shopify-section-{{ section.id }} .discovery__label {
+    font-family: 'HelveticaNowDisplay-Medium', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 12px;
+  }
+
+  #shopify-section-{{ section.id }} .discovery__heading {
+    font-family: 'HelveticaNowDisplay-ExtraBold', sans-serif;
+    font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+    line-height: 1.25;
+    margin: 0 0 24px;
+    color: {{ text_color }};
+  }
+
+  #shopify-section-{{ section.id }} .discovery__description {
+    font-family: 'HelveticaNowDisplay-Medium', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    opacity: 0.8;
+    margin-bottom: 28px;
+  }
+
+  /* ── Scent list ────────────────────────────────────────── */
+  #shopify-section-{{ section.id }} .discovery__scents {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 36px;
+    border-top: 1px solid rgba(0,0,0,0.12);
+  }
+
+  #shopify-section-{{ section.id }} .discovery__scent-item {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+  }
+
+  #shopify-section-{{ section.id }} .discovery__scent-name {
+    font-family: 'HelveticaNowDisplay-ExtraBold', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  #shopify-section-{{ section.id }} .discovery__scent-desc {
+    font-family: 'HelveticaNowDisplay-Medium', sans-serif;
+    font-size: 13px;
+    opacity: 0.65;
+  }
+
+  /* ── CTA button ────────────────────────────────────────── */
+  #shopify-section-{{ section.id }} .discovery__btn {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 12px 20px;
+    background: {{ section.settings.btn_bg }};
+    color: {{ section.settings.btn_text }};
+    border: 2px solid {{ section.settings.btn_bg }};
+    border-radius: 5px;
+    font-family: 'HelveticaNowDisplay-ExtraBold', sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.25s ease-out, border-color 0.25s ease-out;
+  }
+
+  #shopify-section-{{ section.id }} .discovery__btn:hover {
+    background: #a6a6a6;
+    border-color: #a6a6a6;
+  }
+
+  /* ── Mobile ────────────────────────────────────────────── */
+  @media (max-width: 749px) {
+    #shopify-section-{{ section.id }} .discovery__grid {
+      grid-template-columns: 1fr;
+      direction: ltr;          /* reset rtl used for right-image layout */
+    }
+
+    #shopify-section-{{ section.id }} .discovery__image-col {
+      min-height: 300px;
+      direction: ltr;
+    }
+
+    #shopify-section-{{ section.id }} .discovery__text-col {
+      padding: 40px 16px;
+      direction: ltr;
+    }
+
+    #shopify-section-{{ section.id }} .discovery__btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+
+<div class="discovery__grid">
+
+  {%- comment -%} Image column {%- endcomment -%}
+  <div class="discovery__image-col">
+    {%- if section.settings.image != blank -%}
+      {{
+        section.settings.image
+        | image_url: width: 1200
+        | image_tag:
+          class: 'discovery__image',
+          loading: 'lazy',
+          alt: section.settings.image.alt | default: section.settings.heading | escape
+      }}
+    {%- else -%}
+      {%- comment -%}
+        Placeholder when no image is set in theme editor.
+        Ref: shopify.dev/docs/api/liquid/filters/placeholder_svg_tag
+      {%- endcomment -%}
+      {{ 'lifestyle-2' | placeholder_svg_tag: 'discovery__image' }}
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} Text column {%- endcomment -%}
+  <div class="discovery__text-col">
+
+    {%- if section.settings.label != blank -%}
+      <p class="discovery__label">{{ section.settings.label | escape }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.heading != blank -%}
+      <h2 class="discovery__heading">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.description != blank -%}
+      <p class="discovery__description">{{ section.settings.description | escape }}</p>
+    {%- endif -%}
+
+    {%- comment -%}
+      Scent blocks — each block represents one scent in the
+      discovery set. block.shopify_attributes enables
+      drag-to-reorder in the theme editor.
+      Ref: shopify.dev/docs/api/liquid/objects/block
+    {%- endcomment -%}
+    {%- assign scent_blocks = section.blocks | where: "type", "scent" -%}
+    {%- if scent_blocks.size > 0 -%}
+      <ul class="discovery__scents">
+        {%- for block in scent_blocks -%}
+          <li class="discovery__scent-item" {{ block.shopify_attributes }}>
+            <span class="discovery__scent-name">{{ block.settings.name | escape }}</span>
+            {%- if block.settings.description != blank -%}
+              <span class="discovery__scent-desc">{{ block.settings.description | escape }}</span>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if section.settings.btn_label != blank -%}
+      <a href="{{ section.settings.btn_url }}" class="discovery__btn">
+        {{ section.settings.btn_label | escape }}
+      </a>
+    {%- endif -%}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Discovery Set",
+  "tag": "section",
+  "class": "custom-discovery-set",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "image_side",
+      "label": "Image position",
+      "options": [
+        { "value": "left",  "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Section image"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Eyebrow label",
+      "default": "For the undecided"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "NOT SURE YET? START WITH THE DISCOVERY SET."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Sample all three scents before committing to a full bottle."
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "btn_label",
+      "label": "Button label",
+      "default": "SHOP DISCOVERY SET"
+    },
+    {
+      "type": "url",
+      "id": "btn_url",
+      "label": "Button URL"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg",
+      "label": "Button background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "btn_text",
+      "label": "Button text color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Scent",
+      "type": "scent",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Scent name",
+          "default": "GENTLEMAN"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Short descriptor",
+          "default": "Bold · Magnetic · Modern"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Discovery Set",
+      "category": "Product",
+      "settings": {
+        "heading": "NOT SURE YET? START WITH THE DISCOVERY SET.",
+        "label": "For the undecided",
+        "description": "Sample all three scents before committing to a full bottle.",
+        "btn_label": "SHOP DISCOVERY SET"
+      },
+      "blocks": [
+        { "type": "scent", "settings": { "name": "GENTLEMAN",       "description": "Bold · Magnetic · Modern"          } },
+        { "type": "scent", "settings": { "name": "LUMIÈRE DE JOUR", "description": "Fresh · Clean · Professional"      } },
+        { "type": "scent", "settings": { "name": "NOIR SILLAGE",    "description": "Deep · Warm · Unforgettable"       } }
+      ]
+    }
+  ]
+}
+{% endschema %}

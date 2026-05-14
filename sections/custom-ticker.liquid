@@ -1,0 +1,254 @@
+{% comment %}
+  ┌─────────────────────────────────────────────────────────────┐
+  │  sections/custom-ticker.liquid                              │
+  │  Infinite-scroll trust-badge marquee bar.                   │
+  │                                                             │
+  │  Replicates the "Free shipping · 24/7 support · Easy       │
+  │  returns" horizontal ticker from Mattheuse homepage.        │
+  │                                                             │
+  │  HOW IT WORKS                                               │
+  │  The inner track is duplicated so the scroll appears        │
+  │  seamless (CSS animation loops from –50% to 0%).            │
+  │  Aria-hidden="true" on the duplicate prevents screen        │
+  │  readers from reading the content twice.                    │
+  │                                                             │
+  │  Docs referenced:                                           │
+  │  • Section schema  → shopify.dev/docs/storefronts/themes/   │
+  │      architecture/sections/section-schema                   │
+  │  • Input settings  → shopify.dev/docs/storefronts/themes/   │
+  │      architecture/settings/input-settings                   │
+  │  • block object    → shopify.dev/docs/api/liquid/objects/   │
+  │      block                                                  │
+  └─────────────────────────────────────────────────────────────┘
+{% endcomment %}
+
+{%- liquid
+  assign speed = section.settings.speed | default: 30
+  assign bg_color = section.settings.background_color
+  assign text_color = section.settings.text_color
+-%}
+
+<style>
+  /* Scoped to this section instance only */
+  #shopify-section-{{ section.id }} {
+    background-color: {{ bg_color }};
+    color: {{ text_color }};
+    overflow: hidden;
+    padding: 14px 0;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+
+  #shopify-section-{{ section.id }} .ticker__track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    /* Animation: slide left by 50% (one full copy), then loop */
+    animation: ticker-scroll-{{ section.id }} {{ speed }}s linear infinite;
+    will-change: transform;
+  }
+
+  /* Pause on hover for accessibility */
+  #shopify-section-{{ section.id }} .ticker__wrapper:hover .ticker__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes ticker-scroll-{{ section.id }} {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  #shopify-section-{{ section.id }} .ticker__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 40px;
+    white-space: nowrap;
+    font-family: 'HelveticaNowDisplay-Medium', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  #shopify-section-{{ section.id }} .ticker__icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  /* Separator dot between badges */
+  #shopify-section-{{ section.id }} .ticker__separator {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+</style>
+
+<div
+  class="ticker__wrapper"
+  role="marquee"
+  aria-label="{{ section.settings.aria_label | escape }}"
+>
+  {%- comment -%}
+    .ticker__track contains the blocks twice so the CSS animation
+    can loop without a visible reset jump (seamless scroll).
+  {%- endcomment -%}
+  <div class="ticker__track">
+
+    {%- comment -%} First copy (visible) {%- endcomment -%}
+    {%- for block in section.blocks -%}
+      <span class="ticker__item" {{ block.shopify_attributes }}>
+        {%- if block.settings.icon != blank -%}
+          {%- case block.settings.icon -%}
+            {%- when 'truck' -%}
+              {%- comment -%} Free shipping icon {%- endcomment -%}
+              <svg class="ticker__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM18.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+              </svg>
+            {%- when 'clock' -%}
+              {%- comment -%} 24/7 support icon {%- endcomment -%}
+              <svg class="ticker__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                <polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" fill="none"/>
+              </svg>
+            {%- when 'return' -%}
+              {%- comment -%} Easy returns icon {%- endcomment -%}
+              <svg class="ticker__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <polyline points="1 4 1 10 7 10"/>
+                <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+              </svg>
+            {%- when 'star' -%}
+              <svg class="ticker__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+          {%- endcase -%}
+        {%- endif -%}
+        {{ block.settings.text | escape }}
+        {%- unless forloop.last -%}
+          <span class="ticker__separator" aria-hidden="true"></span>
+        {%- endunless -%}
+      </span>
+    {%- endfor -%}
+
+    {%- comment -%}
+      Second copy — aria-hidden so screen readers skip it.
+      Required for the seamless loop animation.
+    {%- endcomment -%}
+    <span aria-hidden="true">
+      {%- for block in section.blocks -%}
+        <span class="ticker__item">
+          {%- if block.settings.icon != blank -%}
+            {%- case block.settings.icon -%}
+              {%- when 'truck' -%}
+                <svg class="ticker__icon" viewBox="0 0 24 24"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM18.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>
+              {%- when 'clock' -%}
+                <svg class="ticker__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+              {%- when 'return' -%}
+                <svg class="ticker__icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+              {%- when 'star' -%}
+                <svg class="ticker__icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            {%- endcase -%}
+          {%- endif -%}
+          {{ block.settings.text | escape }}
+          {%- unless forloop.last -%}
+            <span class="ticker__separator" aria-hidden="true"></span>
+          {%- endunless -%}
+        </span>
+      {%- endfor -%}
+    </span>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Trust Badge Ticker",
+  "tag": "section",
+  "class": "custom-ticker",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Scroll speed (seconds per loop)",
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text & icon color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Accessibility"
+    },
+    {
+      "type": "text",
+      "id": "aria_label",
+      "label": "Screen reader label",
+      "default": "Trust badges"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Badge",
+      "type": "badge",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Badge text",
+          "default": "Free shipping"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "truck",  "label": "Truck (shipping)" },
+            { "value": "clock",  "label": "Clock (support)" },
+            { "value": "return", "label": "Arrows (returns)" },
+            { "value": "star",   "label": "Star" },
+            { "value": "",       "label": "None" }
+          ],
+          "default": "truck"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust Badge Ticker",
+      "category": "Promotional",
+      "blocks": [
+        { "type": "badge", "settings": { "text": "Free shipping",   "icon": "truck"  } },
+        { "type": "badge", "settings": { "text": "24/7 support",    "icon": "clock"  } },
+        { "type": "badge", "settings": { "text": "Easy returns",    "icon": "return" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

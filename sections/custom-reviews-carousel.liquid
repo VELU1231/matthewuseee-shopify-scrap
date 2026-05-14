@@ -1,0 +1,460 @@
+{% comment %}
+  ┌─────────────────────────────────────────────────────────────┐
+  │  sections/custom-reviews-carousel.liquid                    │
+  │  CSS-only testimonials carousel with dot pagination.        │
+  │                                                             │
+  │  Technique: radio inputs (hidden) + :checked sibling CSS.  │
+  │  No JavaScript required — fully accessible via keyboard.   │
+  │                                                             │
+  │  Each "review" block contains:                             │
+  │    • 5-star SVG rating                                      │
+  │    • Review body text                                       │
+  │    • Reviewer name                                          │
+  │    • "Verified Buyer" badge                                 │
+  │                                                             │
+  │  Docs:                                                      │
+  │  • Section schema → shopify.dev/docs/storefronts/themes/   │
+  │      architecture/sections/section-schema                   │
+  │  • block object   → shopify.dev/docs/api/liquid/objects/   │
+  │      block                                                  │
+  │  • forloop object → shopify.dev/docs/api/liquid/objects/   │
+  │      forloop                                                │
+  └─────────────────────────────────────────────────────────────┘
+{% endcomment %}
+
+{%- liquid
+  assign section_id = section.id
+  assign review_blocks = section.blocks | where: "type", "review"
+  assign total = review_blocks.size
+  assign cols_desktop = section.settings.columns_desktop | default: 3
+  assign bg_color = section.settings.background_color
+  assign text_color = section.settings.text_color
+  assign card_bg = section.settings.card_background
+  assign star_color = section.settings.star_color
+  assign heading = section.settings.heading
+-%}
+
+<style>
+  /* ── Section shell ─────────────────────────────────────── */
+  #shopify-section-{{ section_id }} {
+    background-color: {{ bg_color }};
+    color: {{ text_color }};
+    padding: 80px 40px;
+  }
+
+  #shopify-section-{{ section_id }} .reviews__inner {
+    max-width: 120rem;
+    margin: 0 auto;
+  }
+
+  /* ── Section heading ───────────────────────────────────── */
+  #shopify-section-{{ section_id }} .reviews__heading {
+    font-family: 'HelveticaNowDisplay-ExtraBold', sans-serif;
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    text-align: {{ section.settings.heading_align }};
+    margin: 0 0 48px;
+    color: {{ text_color }};
+  }
+
+  /* ── Radio inputs (hidden — used only as state) ─────────── */
+  /*
+   * The technique uses hidden radio buttons + :checked CSS to
+   * show/hide slides and style the active dot. This avoids
+   * JavaScript entirely for the core interaction.
+   */
+  #shopify-section-{{ section_id }} .reviews__radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+
+  /* ── Carousel viewport ─────────────────────────────────── */
+  #shopify-section-{{ section_id }} .reviews__carousel {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Slides track ──────────────────────────────────────── */
+  #shopify-section-{{ section_id }} .reviews__track {
+    display: flex;
+    /* Default: show first slide */
+    transform: translateX(0%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── Generate slide visibility rules ───────────────────── */
+  /*
+   * For each review block we output a :checked rule that
+   * shifts the track to show that slide.
+   * Single-slide view (100% width) on desktop and mobile.
+   * For multi-column desktop, we use a CSS grid card layout
+   * instead (see card grid below).
+   */
+
+  /* ── Individual slide ──────────────────────────────────── */
+  #shopify-section-{{ section_id }} .reviews__slide {
+    flex: 0 0 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat({{ cols_desktop }}, 1fr);
+    gap: 24px;
+    padding: 0 4px;
+  }
+
+  /* ── Review card ───────────────────────────────────────── */
+  #shopify-section-{{ section_id }} .review-card {
+    background: {{ card_bg }};
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ── Stars ─────────────────────────────────────────────── */
+  #shopify-section-{{ section_id }} .review-card__stars {
+    display: flex;
+    gap: 3px;
+  }
+
+  #shopify-section-{{ section_id }} .review-card__stars svg {
+    width: 16px;
+    height: 16px;
+    fill: {{ star_color }};
+    flex-shrink: 0;
+  }
+
+  /* ── Review text ───────────────────────────────────────── */
+  #shopify-section-{{ section_id }} .review-card__text {
+    font-family: 'HelveticaNowDisplay-Medium', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    flex-grow: 1;
+    opacity: 0.9;
+  }
+
+  /* ── Reviewer meta ─────────────────────────────────────── */
+  #shopify-section-{{ section_id }} .review-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
+
+  #shopify-section-{{ section_id }} .review-card__name {
+    font-family: 'HelveticaNowDisplay-ExtraBold', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+
+  #shopify-section-{{ section_id }} .review-card__badge {
+    font-family: 'HelveticaNowDisplay-Medium', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 40px;
+    background: #3ED660;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  /* ── Dot navigation ────────────────────────────────────── */
+  #shopify-section-{{ section_id }} .reviews__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 36px;
+  }
+
+  #shopify-section-{{ section_id }} .reviews__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: {{ text_color }};
+    opacity: 0.25;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    transition: opacity 0.2s ease;
+    display: block;
+  }
+
+  /* Active dot per slide — generated below */
+  {% for i in (1..total) %}
+    #shopify-section-{{ section_id }} .reviews__radio--{{ i }}:checked
+    ~ .reviews__carousel .reviews__track {
+      transform: translateX({{ i | minus: 1 | times: -100 }}%);
+    }
+    #shopify-section-{{ section_id }} .reviews__radio--{{ i }}:checked
+    ~ .reviews__dots .reviews__dot--{{ i }} {
+      opacity: 1;
+    }
+  {% endfor %}
+
+  /* ── Mobile ────────────────────────────────────────────── */
+  @media (max-width: 749px) {
+    #shopify-section-{{ section_id }} {
+      padding: 60px 16px;
+    }
+
+    #shopify-section-{{ section_id }} .reviews__slide {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+{%- comment -%}
+  Hidden radio inputs — one per slide.
+  First one is checked by default (shows slide 1).
+  Labels for each input are the dot buttons below.
+{%- endcomment -%}
+{%- for block in review_blocks -%}
+  <input
+    class="reviews__radio reviews__radio--{{ forloop.index }}"
+    type="radio"
+    name="reviews-carousel-{{ section_id }}"
+    id="reviews-dot-{{ section_id }}-{{ forloop.index }}"
+    {% if forloop.first %}checked{% endif %}
+    aria-label="Show review {{ forloop.index }}"
+  >
+{%- endfor -%}
+
+<div class="reviews__inner">
+
+  {%- if heading != blank -%}
+    <h2 class="reviews__heading">{{ heading | escape }}</h2>
+  {%- endif -%}
+
+  <div class="reviews__carousel" aria-label="Customer reviews">
+
+    <div class="reviews__track">
+      {%- comment -%}
+        Each "slide" is a full row of cards.
+        We group blocks into pages of `cols_desktop` cards.
+        Liquid doesn't have modulo chunking built-in, so we
+        iterate and emit a new slide div every N blocks.
+      {%- endcomment -%}
+
+      {%- assign slide_index = 0 -%}
+      {%- assign card_count = 0 -%}
+
+      {%- for block in review_blocks -%}
+        {%- assign card_count_mod = card_count | modulo: cols_desktop -%}
+
+        {%- if card_count_mod == 0 -%}
+          {%- if card_count > 0 -%}</div>{%- endif -%}  {%- comment -%} close previous slide {%- endcomment -%}
+          {%- assign slide_index = slide_index | plus: 1 -%}
+          <div
+            class="reviews__slide"
+            role="group"
+            aria-label="Slide {{ slide_index }}"
+          >
+        {%- endif -%}
+
+        {%- comment -%}
+          Review card.
+          block.shopify_attributes is mandatory for each block
+          element so the theme editor can select/reorder blocks.
+          Ref: shopify.dev/docs/api/liquid/objects/block
+        {%- endcomment -%}
+        <article class="review-card" {{ block.shopify_attributes }}>
+
+          {%- comment -%} Star rating — fixed 5 stars per card {%- endcomment -%}
+          <div class="review-card__stars" aria-label="5 out of 5 stars">
+            {%- for i in (1..5) -%}
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            {%- endfor -%}
+          </div>
+
+          {%- comment -%} Review body {%- endcomment -%}
+          {%- if block.settings.text != blank -%}
+            <p class="review-card__text">
+              &#8220;{{ block.settings.text | escape }}&#8221;
+            </p>
+          {%- endif -%}
+
+          {%- comment -%} Reviewer name + verified badge {%- endcomment -%}
+          <div class="review-card__meta">
+            {%- if block.settings.reviewer_name != blank -%}
+              <span class="review-card__name">{{ block.settings.reviewer_name | escape }}</span>
+            {%- endif -%}
+            {%- if block.settings.show_verified -%}
+              <span class="review-card__badge">Verified Buyer</span>
+            {%- endif -%}
+          </div>
+
+        </article>
+
+        {%- assign card_count = card_count | plus: 1 -%}
+
+        {%- if forloop.last -%}
+          </div>  {%- comment -%} close final slide {%- endcomment -%}
+        {%- endif -%}
+
+      {%- endfor -%}
+
+    </div>{%- comment -%} .reviews__track {%- endcomment -%}
+  </div>{%- comment -%} .reviews__carousel {%- endcomment -%}
+
+  {%- comment -%}
+    Dot buttons.
+    Each is a <label> pointing to its paired hidden radio input
+    via the `for` attribute. Clicking a label checks the radio,
+    which triggers the :checked CSS rules above.
+  {%- endcomment -%}
+  {%- assign total_slides = slide_index -%}
+  {%- if total_slides > 1 -%}
+    <nav class="reviews__dots" aria-label="Carousel navigation">
+      {%- for i in (1..total_slides) -%}
+        <label
+          class="reviews__dot reviews__dot--{{ i }}"
+          for="reviews-dot-{{ section_id }}-{{ i | times: cols_desktop | minus: cols_desktop | plus: 1 }}"
+          aria-label="Go to slide {{ i }}"
+        ></label>
+      {%- endfor -%}
+    </nav>
+  {%- endif -%}
+
+</div>{%- comment -%} .reviews__inner {%- endcomment -%}
+
+{% schema %}
+{
+  "name": "Reviews Carousel",
+  "tag": "section",
+  "class": "custom-reviews-carousel",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section heading",
+      "default": "WHAT OUR CUSTOMERS SAY"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left",   "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right",  "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Cards per slide (desktop)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3,
+      "info": "On mobile, always shows 1 card per slide"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#F5C518"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Review",
+      "type": "review",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Review text",
+          "default": "This is an amazing product! Highly recommend."
+        },
+        {
+          "type": "text",
+          "id": "reviewer_name",
+          "label": "Reviewer name",
+          "default": "Happy Customer"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_verified",
+          "label": "Show \"Verified Buyer\" badge",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reviews Carousel",
+      "category": "Social proof",
+      "settings": {
+        "heading": "WHAT OUR CUSTOMERS SAY",
+        "columns_desktop": 3
+      },
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "text": "Grabe ang bango nito! Sulit na sulit ang presyo. Hindi siya mabilis maubos, 3 sprays lang tatagal ng buong araw.",
+            "reviewer_name": "Carlo R.",
+            "show_verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "text": "Finally a local brand na hindi nagpapalit ng kalidad. The Gentleman scent is my go-to every single day.",
+            "reviewer_name": "Jared M.",
+            "show_verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "text": "Ang bango niya is very clean and fresh. Perfect for the office. Sobrang worth it!",
+            "reviewer_name": "Nico A.",
+            "show_verified": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

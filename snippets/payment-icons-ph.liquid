@@ -1,0 +1,163 @@
+{% comment %}
+  ┌─────────────────────────────────────────────────────────────┐
+  │  snippets/payment-icons-ph.liquid                           │
+  │  Philippine payment method icon strip for the footer.       │
+  │                                                             │
+  │  USAGE (in sections/footer or layout/theme.liquid):         │
+  │    {% render 'payment-icons-ph' %}                          │
+  │                                                             │
+  │  Accepts optional parameter:                                │
+  │    icon_color — hex or CSS color for monochrome icons       │
+  │    e.g.: {% render 'payment-icons-ph', icon_color: '#fff' %}│
+  │                                                             │
+  │  Includes:                                                  │
+  │    GCash, Maya, Visa, Mastercard, GrabPay, BDO, BPI,        │
+  │    UnionBank, Google Pay, Apple Pay                         │
+  │                                                             │
+  │  Inline SVGs are used to avoid additional HTTP requests     │
+  │  and allow CSS color control via currentColor / fill.       │
+  │                                                             │
+  │  Docs: shopify.dev/docs/storefronts/themes/architecture/   │
+  │    snippets                                                 │
+  └─────────────────────────────────────────────────────────────┘
+{% endcomment %}
+
+{%- liquid
+  unless icon_color
+    assign icon_color = 'currentColor'
+  endunless
+-%}
+
+<div class="payment-icons" aria-label="Accepted payment methods">
+  <style>
+    .payment-icons {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .payment-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      border-radius: 4px;
+      overflow: hidden;
+      opacity: 0.85;
+      transition: opacity 0.2s ease;
+    }
+
+    .payment-icon:hover {
+      opacity: 1;
+    }
+
+    .payment-icon img,
+    .payment-icon svg {
+      height: 28px;
+      width: auto;
+      display: block;
+    }
+
+    /* Card-style badge (white card with logo) */
+    .payment-icon--card {
+      background: #fff;
+      padding: 3px 8px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+  </style>
+
+  {%- comment -%} GCash {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="GCash" aria-label="GCash">
+    <svg width="48" height="22" viewBox="0 0 48 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="48" height="22" rx="3" fill="#0070BA"/>
+      <text x="50%" y="15" fill="#fff" font-size="9" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto">GCash</text>
+    </svg>
+  </span>
+
+  {%- comment -%} Maya (formerly PayMaya) {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="Maya" aria-label="Maya">
+    <svg width="48" height="22" viewBox="0 0 48 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="48" height="22" rx="3" fill="#00B14F"/>
+      <text x="50%" y="15" fill="#fff" font-size="9" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto">Maya</text>
+    </svg>
+  </span>
+
+  {%- comment -%} Visa {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="Visa" aria-label="Visa">
+    <svg width="48" height="22" viewBox="0 0 48 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="48" height="22" rx="3" fill="#fff" stroke="#e0e0e0"/>
+      <text x="50%" y="15" fill="#1A1F71" font-size="10" font-weight="800" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto" letter-spacing="-0.5">VISA</text>
+    </svg>
+  </span>
+
+  {%- comment -%} Mastercard {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="Mastercard" aria-label="Mastercard">
+    <svg width="38" height="22" viewBox="0 0 38 22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="38" height="22" rx="3" fill="#fff" stroke="#e0e0e0"/>
+      <circle cx="14" cy="11" r="7" fill="#EB001B"/>
+      <circle cx="24" cy="11" r="7" fill="#F79E1B"/>
+      <path d="M19 5.8A7 7 0 0124 11a7 7 0 01-5 5.2A7 7 0 0114 11a7 7 0 015-5.2z" fill="#FF5F00"/>
+    </svg>
+  </span>
+
+  {%- comment -%} GrabPay {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="GrabPay" aria-label="GrabPay">
+    <svg width="55" height="22" viewBox="0 0 55 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="55" height="22" rx="3" fill="#00B14F"/>
+      <text x="50%" y="15" fill="#fff" font-size="8" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto">GrabPay</text>
+    </svg>
+  </span>
+
+  {%- comment -%} BDO {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="BDO" aria-label="BDO">
+    <svg width="40" height="22" viewBox="0 0 40 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="40" height="22" rx="3" fill="#fff" stroke="#e0e0e0"/>
+      <text x="50%" y="15" fill="#002F6C" font-size="9" font-weight="800" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto">BDO</text>
+    </svg>
+  </span>
+
+  {%- comment -%} BPI {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="BPI" aria-label="Bank of the Philippine Islands">
+    <svg width="38" height="22" viewBox="0 0 38 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="38" height="22" rx="3" fill="#fff" stroke="#e0e0e0"/>
+      <text x="50%" y="15" fill="#BE0000" font-size="9" font-weight="800" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto">BPI</text>
+    </svg>
+  </span>
+
+  {%- comment -%} UnionBank {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="UnionBank" aria-label="UnionBank of the Philippines">
+    <svg width="65" height="22" viewBox="0 0 65 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="65" height="22" rx="3" fill="#fff" stroke="#e0e0e0"/>
+      <text x="50%" y="15" fill="#F7941D" font-size="7.5" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto">UnionBank</text>
+    </svg>
+  </span>
+
+  {%- comment -%} Google Pay {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="Google Pay" aria-label="Google Pay">
+    <svg width="54" height="22" viewBox="0 0 54 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="54" height="22" rx="3" fill="#fff" stroke="#e0e0e0"/>
+      <text x="50%" y="15" fill="#3c4043" font-size="8" font-weight="500" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto">
+        <tspan fill="#4285F4">G</tspan><tspan fill="#EA4335">o</tspan><tspan fill="#FBBC05">o</tspan><tspan fill="#4285F4">g</tspan><tspan fill="#34A853">l</tspan><tspan fill="#EA4335">e </tspan><tspan fill="#3c4043">Pay</tspan>
+      </text>
+    </svg>
+  </span>
+
+  {%- comment -%} Apple Pay {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="Apple Pay" aria-label="Apple Pay">
+    <svg width="50" height="22" viewBox="0 0 50 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="50" height="22" rx="3" fill="#000"/>
+      <text x="50%" y="15" fill="#fff" font-size="8" font-weight="500" font-family="-apple-system,Arial,sans-serif" text-anchor="middle" dominant-baseline="auto"> Pay</text>
+      <text x="11" y="15" fill="#fff" font-size="9" font-weight="500" font-family="-apple-system,Arial,sans-serif" dominant-baseline="auto"></text>
+    </svg>
+  </span>
+
+  {%- comment -%} COD (Cash on Delivery) — PH-specific {%- endcomment -%}
+  <span class="payment-icon payment-icon--card" title="Cash on Delivery" aria-label="Cash on Delivery">
+    <svg width="42" height="22" viewBox="0 0 42 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="42" height="22" rx="3" fill="#f5f5f5" stroke="#e0e0e0"/>
+      <text x="50%" y="15" fill="#333" font-size="7.5" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" dominant-baseline="auto">COD</text>
+    </svg>
+  </span>
+
+</div>
