@@ -7,6 +7,20 @@
   lang="{{ request.locale.iso_code }}"
 >
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="{{ settings.colors_text }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+    <title>
+      {{ page_title }}
+      {%- if current_tags %} - tagged {{ current_tags | join: ', ' }}{% endif -%}
+      {%- if current_page != 1 %} - Page {{ current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} - {{ shop.name }}{% endunless -%}
+    </title>
+
     {%- if settings.favicon != blank -%}
       <link
         rel="icon"
@@ -25,23 +39,14 @@
       >
     {% endif %}
 
-    {%- render 'meta-tags' -%}
-    {%- render 'stylesheets' -%}
-    {%- render 'fonts' -%}
-    {%- render 'scripts' -%}
-    {%- render 'theme-styles-variables' -%}
-    {%- render 'color-schemes' -%}
-
-    {% if request.design_mode %}
-      {%- render 'theme-editor' -%}
-    {% endif %}
+    {{ 'base.css' | asset_url | stylesheet_tag }}
 
     {{ content_for_header }}
     {{ 'mattheuse.css' | asset_url | stylesheet_tag }}
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
-    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+    <a href="#MainContent" class="skip-to-content-link">{{ 'accessibility.skip_to_text' | t }}</a>
     <div id="header-group">
       {% sections 'header-group' %}
     </div>
@@ -129,10 +134,5 @@
       {% sections 'footer-group' %}
     </footer>
 
-    {% render 'search-modal' %}
-
-    {% if settings.quick_add or settings.mobile_quick_add %}
-      {% render 'quick-add-modal' %}
-    {% endif %}
   </body>
 </html>
