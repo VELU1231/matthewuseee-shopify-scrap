@@ -1,56 +1,8 @@
 {
   "sections": {
-    "custom-hero": {
-      "type": "custom-hero",
-      "settings": {}
-    },
-    "custom-ticker": {
-      "type": "custom-ticker",
-      "settings": {}
-    },
-    "custom-signature-scent": {
-      "type": "custom-signature-scent",
-      "settings": {}
-    },
-    "custom-discovery-set": {
-      "type": "custom-discovery-set",
-      "settings": {}
-    },
-    "custom-scent-wardrobe": {
-      "type": "custom-scent-wardrobe",
-      "settings": {}
-    },
-    "custom-why-us": {
-      "type": "custom-why-us",
-      "settings": {}
-    },
-    "custom-brand-story": {
-      "type": "custom-brand-story",
-      "settings": {}
-    },
-    "custom-reviews-carousel": {
-      "type": "custom-reviews-carousel",
-      "settings": {}
-    },
-    "custom-faq": {
-      "type": "custom-faq",
-      "settings": {}
-    },
-    "custom-final-cta": {
-      "type": "custom-final-cta",
-      "settings": {}
+    "main": {
+      "type": "main-page"
     }
   },
-  "order": [
-    "custom-hero",
-    "custom-ticker",
-    "custom-signature-scent",
-    "custom-discovery-set",
-    "custom-scent-wardrobe",
-    "custom-why-us",
-    "custom-brand-story",
-    "custom-reviews-carousel",
-    "custom-faq",
-    "custom-final-cta"
-  ]
+  "order": ["main"]
 }
