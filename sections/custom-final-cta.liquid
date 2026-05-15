@@ -17,6 +17,26 @@
 {%- liquid
   assign bg_img = section.settings.bg_image
   assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
+  assign primary_cta_url = section.settings.btn_primary_url
+  assign secondary_cta_url = section.settings.btn_secondary_url
+  if primary_cta_url == blank and section.settings.primary_collection != blank
+    assign primary_cta_url = section.settings.primary_collection.url
+  endif
+  if primary_cta_url == blank and section.settings.primary_product != blank
+    assign primary_cta_url = section.settings.primary_product.url
+  endif
+  if primary_cta_url == blank
+    assign primary_cta_url = routes.all_products_collection_url
+  endif
+  if secondary_cta_url == blank and section.settings.secondary_product != blank
+    assign secondary_cta_url = section.settings.secondary_product.url
+  endif
+  if secondary_cta_url == blank and section.settings.secondary_collection != blank
+    assign secondary_cta_url = section.settings.secondary_collection.url
+  endif
+  if secondary_cta_url == blank
+    assign secondary_cta_url = routes.all_products_collection_url
+  endif
 -%}
 
 <section
@@ -66,7 +86,7 @@
     <div class="final-cta__buttons">
       {%- if section.settings.btn_primary_label != blank -%}
         <a
-          href="{{ section.settings.btn_primary_url | default: routes.all_products_collection_url }}"
+          href="{{ primary_cta_url }}"
           class="final-cta__btn final-cta__btn--primary"
         >
           {{- section.settings.btn_primary_label | escape -}}
@@ -75,7 +95,7 @@
 
       {%- if section.settings.btn_secondary_label != blank -%}
         <a
-          href="{{ section.settings.btn_secondary_url | default: routes.all_products_collection_url }}"
+          href="{{ secondary_cta_url }}"
           class="final-cta__btn final-cta__btn--secondary"
         >
           {{- section.settings.btn_secondary_label | escape -}}
@@ -310,6 +330,16 @@
       "label": "Primary button URL"
     },
     {
+      "type": "collection",
+      "id": "primary_collection",
+      "label": "Fallback primary collection"
+    },
+    {
+      "type": "product",
+      "id": "primary_product",
+      "label": "Fallback primary product"
+    },
+    {
       "type": "color",
       "id": "btn_primary_bg",
       "label": "Primary button background",
@@ -335,6 +365,16 @@
       "type": "url",
       "id": "btn_secondary_url",
       "label": "Secondary button URL"
+    },
+    {
+      "type": "product",
+      "id": "secondary_product",
+      "label": "Fallback secondary product"
+    },
+    {
+      "type": "collection",
+      "id": "secondary_collection",
+      "label": "Fallback secondary collection"
     },
     {
       "type": "range",

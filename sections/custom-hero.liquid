@@ -25,6 +25,20 @@
   assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
   assign text_align = section.settings.text_alignment
   assign min_height = section.settings.min_height
+  assign primary_cta_url = section.settings.btn_primary_url
+  assign secondary_cta_url = section.settings.btn_secondary_url
+  if primary_cta_url == blank and section.settings.primary_collection != blank
+    assign primary_cta_url = section.settings.primary_collection.url
+  endif
+  if primary_cta_url == blank
+    assign primary_cta_url = routes.all_products_collection_url
+  endif
+  if secondary_cta_url == blank and section.settings.secondary_product != blank
+    assign secondary_cta_url = section.settings.secondary_product.url
+  endif
+  if secondary_cta_url == blank
+    assign secondary_cta_url = routes.root_url
+  endif
 -%}
 
 <style>
@@ -36,6 +50,7 @@
     min-height: {{ min_height }}px;
     overflow: hidden;
     color: {{ section.settings.text_color }};
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
   }
 
   /* ── Background image ──────────────────────────────────── */
@@ -62,9 +77,9 @@
     position: relative;
     z-index: 2;
     width: 100%;
-    max-width: 120rem;        /* --normal-page-width from Horizon */
+    max-width: {{ section.settings.content_max_width }}rem;
     margin: 0 auto;
-    padding: 80px 40px;
+    padding: {{ section.settings.content_padding_y }}px {{ section.settings.content_padding_x }}px;
     text-align: {{ text_align }};
   }
 
@@ -80,7 +95,7 @@
   #shopify-section-{{ section.id }} .hero__stars svg {
     width: 18px;
     height: 18px;
-    fill: #F5C518;
+    fill: {{ section.settings.star_color }};
     flex-shrink: 0;
   }
 
@@ -198,11 +213,11 @@
   /* ── Mobile (≤ 749px) ──────────────────────────────────── */
   @media (max-width: 749px) {
     #shopify-section-{{ section.id }} {
-      min-height: {{ min_height | times: 0.75 | round }}px;
+      min-height: {{ section.settings.mobile_min_height }}px;
     }
 
     #shopify-section-{{ section.id }} .hero__content {
-      padding: 60px 16px;
+      padding: {{ section.settings.mobile_content_padding_y }}px {{ section.settings.mobile_content_padding_x }}px;
       text-align: center;
     }
 
@@ -313,7 +328,7 @@
   <div class="hero__ctas">
     {%- if section.settings.btn_primary_label != blank -%}
       <a
-        href="{{ section.settings.btn_primary_url }}"
+        href="{{ primary_cta_url }}"
         class="hero__btn--primary"
       >
         {{ section.settings.btn_primary_label | escape }}
@@ -322,7 +337,7 @@
 
     {%- if section.settings.btn_secondary_label != blank -%}
       <a
-        href="{{ section.settings.btn_secondary_url }}"
+        href="{{ secondary_cta_url }}"
         class="hero__btn--secondary"
       >
         {{ section.settings.btn_secondary_label | escape }}
@@ -381,6 +396,93 @@
       "default": 700
     },
     {
+      "type": "range",
+      "id": "mobile_min_height",
+      "label": "Mobile minimum height (px)",
+      "min": 260,
+      "max": 800,
+      "step": 20,
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 40,
+      "max": 160,
+      "step": 2,
+      "unit": "rem",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "content_padding_x",
+      "label": "Desktop horizontal content padding",
+      "min": 8,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "content_padding_y",
+      "label": "Desktop vertical content padding",
+      "min": 12,
+      "max": 180,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "range",
+      "id": "mobile_content_padding_x",
+      "label": "Mobile horizontal content padding",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_content_padding_y",
+      "label": "Mobile vertical content padding",
+      "min": 12,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 60
+    },
+    {
       "type": "header",
       "content": "Content"
     },
@@ -410,6 +512,12 @@
       "id": "show_stars",
       "label": "Show star rating row",
       "default": true
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#F5C518"
     },
     {
       "type": "text",
@@ -449,6 +557,12 @@
       "label": "Button URL"
     },
     {
+      "type": "collection",
+      "id": "primary_collection",
+      "label": "Fallback collection",
+      "info": "Used when primary button URL is blank"
+    },
+    {
       "type": "color",
       "id": "btn_primary_bg",
       "label": "Button background",
@@ -474,6 +588,12 @@
       "type": "url",
       "id": "btn_secondary_url",
       "label": "Button URL"
+    },
+    {
+      "type": "product",
+      "id": "secondary_product",
+      "label": "Fallback product",
+      "info": "Used when secondary button URL is blank"
     },
     {
       "type": "color",

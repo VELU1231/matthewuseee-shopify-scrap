@@ -46,7 +46,22 @@
       >
         {%- for block in scent_blocks -%}
           {%- liquid
+            assign scent_product = block.settings.product
             assign image = block.settings.image
+            if image == blank and scent_product != blank
+              assign image = scent_product.featured_image
+            endif
+            assign scent_name = block.settings.name
+            if scent_name == blank and scent_product != blank
+              assign scent_name = scent_product.title
+            endif
+            assign scent_btn_url = block.settings.btn_url
+            if scent_btn_url == blank and scent_product != blank
+              assign scent_btn_url = scent_product.url
+            endif
+            if scent_btn_url == blank
+              assign scent_btn_url = routes.all_products_collection_url
+            endif
             assign tags_raw = block.settings.tags
             assign tags_list = tags_raw | split: ','
           -%}
@@ -54,14 +69,14 @@
 
             <div class="scent-wardrobe__image-wrap">
               {%- if image != blank -%}
-                {%- assign _scent_alt = block.settings.name | default: '' | escape -%}
+                {%- assign scent_alt = scent_name | default: '' | escape -%}
                 {{
                   image
                   | image_url: width: 800
                   | image_tag:
                     loading: 'lazy',
                     class: 'scent-wardrobe__image',
-                    alt: _scent_alt,
+                    alt: scent_alt,
                     widths: '400, 600, 800'
                 }}
               {%- else -%}
@@ -76,8 +91,8 @@
             </div>
 
             <div class="scent-wardrobe__content">
-              {%- if block.settings.name != blank -%}
-                <h3 class="scent-wardrobe__name">{{ block.settings.name | escape }}</h3>
+              {%- if scent_name != blank -%}
+                <h3 class="scent-wardrobe__name">{{ scent_name | escape }}</h3>
               {%- endif -%}
 
               {%- if tags_raw != blank -%}
@@ -108,7 +123,7 @@
 
               {%- if block.settings.btn_label != blank -%}
                 <a
-                  href="{{ block.settings.btn_url | default: '#' }}"
+                  href="{{ scent_btn_url }}"
                   class="scent-wardrobe__btn btn"
                 >
                   {{- block.settings.btn_label | escape -}}
@@ -400,8 +415,16 @@
     }
   ],
   "blocks": [
+    {
+      "type": "scent",
       "name": "Scent",
       "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Linked product",
+          "info": "When selected, product title, image, and URL can be used as fallbacks"
+        },
         {
           "type": "image_picker",
           "id": "image",

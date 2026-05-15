@@ -27,6 +27,10 @@
   assign review_blocks = section.blocks | where: "type", "review"
   assign total = review_blocks.size
   assign cols_desktop = section.settings.columns_desktop | default: 3
+  assign cols_mobile = section.settings.columns_mobile | default: 1
+  if cols_mobile < 1
+    assign cols_mobile = 1
+  endif
   assign total_slides = total | divided_by: cols_desktop
   assign total_mod = total | modulo: cols_desktop
   if total_mod > 0
@@ -44,11 +48,11 @@
   #shopify-section-{{ section_id }} {
     background-color: {{ bg_color }};
     color: {{ text_color }};
-    padding: 80px 40px;
+    padding: {{ section.settings.padding_top }}px {{ section.settings.padding_inline_desktop }}px {{ section.settings.padding_bottom }}px;
   }
 
   #shopify-section-{{ section_id }} .reviews__inner {
-    max-width: 120rem;
+    max-width: {{ section.settings.content_max_width }}rem;
     margin: 0 auto;
   }
 
@@ -104,7 +108,7 @@
     width: 100%;
     display: grid;
     grid-template-columns: repeat({{ cols_desktop }}, 1fr);
-    gap: 24px;
+    gap: {{ section.settings.card_gap_desktop }}px;
     padding: 0 4px;
   }
 
@@ -113,7 +117,7 @@
     background: {{ card_bg }};
     border: 1px solid rgba(0,0,0,0.08);
     border-radius: 8px;
-    padding: 28px 24px;
+    padding: {{ section.settings.card_padding_vertical }}px {{ section.settings.card_padding_horizontal }}px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -204,11 +208,13 @@
   /* ── Mobile ────────────────────────────────────────────── */
   @media (max-width: 749px) {
     #shopify-section-{{ section_id }} {
-      padding: 60px 16px;
+      padding-left: {{ section.settings.padding_inline_mobile }}px;
+      padding-right: {{ section.settings.padding_inline_mobile }}px;
     }
 
     #shopify-section-{{ section_id }} .reviews__slide {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat({{ cols_mobile }}, 1fr);
+      gap: {{ section.settings.card_gap_mobile }}px;
     }
   }
 </style>
@@ -350,6 +356,65 @@
       "info": "On mobile, always shows 1 card per slide"
     },
     {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "Cards per slide (mobile)",
+      "min": 1,
+      "max": 2,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 40,
+      "max": 160,
+      "step": 2,
+      "unit": "rem",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "card_gap_desktop",
+      "label": "Desktop card gap",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_gap_mobile",
+      "label": "Mobile card gap",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_padding_horizontal",
+      "label": "Card horizontal padding",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_padding_vertical",
+      "label": "Card vertical padding",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
       "type": "header",
       "content": "Colors"
     },
@@ -376,6 +441,50 @@
       "id": "star_color",
       "label": "Star color",
       "default": "#F5C518"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_desktop",
+      "label": "Desktop side padding",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Mobile side padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
     }
   ],
   "blocks": [

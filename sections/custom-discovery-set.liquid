@@ -22,6 +22,18 @@
   assign image_side = section.settings.image_side
   assign section_bg = section.settings.background_color
   assign text_color = section.settings.text_color
+  assign text_align = section.settings.text_alignment | default: 'left'
+  assign mobile_text_align = section.settings.mobile_text_alignment | default: 'left'
+  assign discovery_btn_url = section.settings.btn_url
+  if discovery_btn_url == blank and section.settings.featured_product != blank
+    assign discovery_btn_url = section.settings.featured_product.url
+  endif
+  if discovery_btn_url == blank and section.settings.featured_collection != blank
+    assign discovery_btn_url = section.settings.featured_collection.url
+  endif
+  if discovery_btn_url == blank
+    assign discovery_btn_url = routes.all_products_collection_url
+  endif
 -%}
 
 <style>
@@ -29,12 +41,14 @@
   #shopify-section-{{ section.id }} {
     background-color: {{ section_bg }};
     color: {{ text_color }};
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
   }
 
   #shopify-section-{{ section.id }} .discovery__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    min-height: 560px;
+    min-height: {{ section.settings.min_height }}px;
+    gap: {{ section.settings.column_gap }}px;
     {% if image_side == 'right' %}direction: rtl;{% endif %}
   }
 
@@ -58,7 +72,9 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 60px 80px;
+    padding: {{ section.settings.content_padding_y }}px {{ section.settings.content_padding_x }}px;
+    text-align: {{ text_align }};
+    align-items: {% if text_align == 'center' %}center{% else %}flex-start{% endif %};
     {% if image_side == 'right' %}direction: ltr;{% endif %}
   }
 
@@ -87,11 +103,19 @@
     margin-bottom: 28px;
   }
 
+  #shopify-section-{{ section.id }} .discovery__description p {
+    margin: 0 0 12px;
+  }
+
+  #shopify-section-{{ section.id }} .discovery__description p:last-child {
+    margin-bottom: 0;
+  }
+
   /* ── Scent list ────────────────────────────────────────── */
   #shopify-section-{{ section.id }} .discovery__scents {
     list-style: none;
     padding: 0;
-    margin: 0 0 36px;
+    margin: 0 0 {{ section.settings.content_gap }}px;
     border-top: 1px solid rgba(0,0,0,0.12);
   }
 
@@ -144,15 +168,18 @@
     #shopify-section-{{ section.id }} .discovery__grid {
       grid-template-columns: 1fr;
       direction: ltr;          /* reset rtl used for right-image layout */
+      gap: {{ section.settings.mobile_column_gap }}px;
     }
 
     #shopify-section-{{ section.id }} .discovery__image-col {
-      min-height: 300px;
+      min-height: {{ section.settings.mobile_image_height }}px;
       direction: ltr;
     }
 
     #shopify-section-{{ section.id }} .discovery__text-col {
-      padding: 40px 16px;
+      padding: {{ section.settings.mobile_content_padding_y }}px {{ section.settings.mobile_content_padding_x }}px;
+      text-align: {{ mobile_text_align }};
+      align-items: {% if mobile_text_align == 'center' %}center{% else %}flex-start{% endif %};
       direction: ltr;
     }
 
@@ -168,14 +195,16 @@
   {%- comment -%} Image column {%- endcomment -%}
   <div class="discovery__image-col">
     {%- if section.settings.image != blank -%}
-      {%- assign _discovery_alt = section.settings.image.alt | default: section.settings.heading | escape -%}
+      {%- assign discovery_alt = section.settings.image.alt | default: section.settings.heading | escape -%}
       {{
         section.settings.image
         | image_url: width: 1200
         | image_tag:
           class: 'discovery__image',
           loading: 'lazy',
-          alt: _discovery_alt
+          alt: discovery_alt,
+          widths: '400, 700, 900, 1200',
+          sizes: '(max-width: 749px) 100vw, 50vw'
       }}
     {%- else -%}
       {%- comment -%}
@@ -198,7 +227,7 @@
     {%- endif -%}
 
     {%- if section.settings.description != blank -%}
-      <p class="discovery__description">{{ section.settings.description | escape }}</p>
+      <div class="discovery__description">{{ section.settings.description }}</div>
     {%- endif -%}
 
     {%- comment -%}
@@ -222,7 +251,7 @@
     {%- endif -%}
 
     {%- if section.settings.btn_label != blank -%}
-      <a href="{{ section.settings.btn_url }}" class="discovery__btn">
+      <a href="{{ discovery_btn_url }}" class="discovery__btn">
         {{ section.settings.btn_label | escape }}
       </a>
     {%- endif -%}
@@ -247,6 +276,36 @@
       "options": [
         { "value": "left",  "label": "Left" },
         { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Desktop minimum height",
+      "min": 320,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 560
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Desktop gap between image and content",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Desktop text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
       ],
       "default": "left"
     },
@@ -292,10 +351,40 @@
       "default": "NOT SURE YET? START WITH THE DISCOVERY SET."
     },
     {
-      "type": "textarea",
+      "type": "richtext",
       "id": "description",
       "label": "Description",
-      "default": "Sample all three scents before committing to a full bottle."
+      "default": "<p>Sample all three scents before committing to a full bottle.</p>"
+    },
+    {
+      "type": "range",
+      "id": "content_padding_x",
+      "label": "Desktop horizontal content padding",
+      "min": 16,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "content_padding_y",
+      "label": "Desktop vertical content padding",
+      "min": 16,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "label": "Gap below scent list",
+      "min": 8,
+      "max": 72,
+      "step": 4,
+      "unit": "px",
+      "default": 36
     },
     {
       "type": "header",
@@ -313,6 +402,18 @@
       "label": "Button URL"
     },
     {
+      "type": "product",
+      "id": "featured_product",
+      "label": "Fallback product",
+      "info": "Used when button URL is blank"
+    },
+    {
+      "type": "collection",
+      "id": "featured_collection",
+      "label": "Fallback collection",
+      "info": "Used when button URL and fallback product are blank"
+    },
+    {
       "type": "color",
       "id": "btn_bg",
       "label": "Button background",
@@ -323,6 +424,84 @@
       "id": "btn_text",
       "label": "Button text color",
       "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "mobile_text_alignment",
+      "label": "Mobile text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "mobile_image_height",
+      "label": "Mobile image minimum height",
+      "min": 180,
+      "max": 520,
+      "step": 20,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "mobile_column_gap",
+      "label": "Mobile gap between image and content",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "mobile_content_padding_x",
+      "label": "Mobile horizontal content padding",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_content_padding_y",
+      "label": "Mobile vertical content padding",
+      "min": 8,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 40
     }
   ],
   "blocks": [

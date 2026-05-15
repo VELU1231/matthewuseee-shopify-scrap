@@ -1,10 +1,39 @@
+{%- liquid
+  assign custom_padding_top = section.settings.padding_top
+  assign custom_padding_bottom = section.settings.padding_bottom
+  assign custom_padding_top_mobile = section.settings.mobile_padding_top
+  assign custom_padding_bottom_mobile = section.settings.mobile_padding_bottom
+
+  if custom_padding_top == blank
+    assign custom_padding_top = section.settings['padding-block-start']
+  endif
+  if custom_padding_bottom == blank
+    assign custom_padding_bottom = section.settings['padding-block-end']
+  endif
+  if custom_padding_top_mobile == blank
+    assign custom_padding_top_mobile = custom_padding_top
+  endif
+  if custom_padding_bottom_mobile == blank
+    assign custom_padding_bottom_mobile = custom_padding_bottom
+  endif
+-%}
+
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <div
   class="section section--{{ section.settings.section_width }} spacing-style {% if section.settings.color_scheme != blank %}color-{{ section.settings.color_scheme }}{% endif %}"
-  style="{% render 'spacing-padding', settings: section.settings %}"
+  style="padding-top: {{ custom_padding_top }}px; padding-bottom: {{ custom_padding_bottom }}px;"
 >
   {{ section.settings.custom_liquid }}
 </div>
+
+<style>
+  @media (max-width: 749px) {
+    #shopify-section-{{ section.id }} .section {
+      padding-top: {{ custom_padding_top_mobile }}px;
+      padding-bottom: {{ custom_padding_bottom_mobile }}px;
+    }
+  }
+</style>
 
 {% schema %}
 {
@@ -41,6 +70,54 @@
     {
       "type": "header",
       "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 160,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 160,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Mobile padding"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "label": "Mobile padding top",
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "label": "Mobile padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Legacy padding (compatibility)"
     },
     {
       "type": "range",
