@@ -14,7 +14,7 @@
  *   https://shopify.dev/docs/api/liquid/filters/asset_url
  *
  * HOW TO LOAD THIS FILE
- * In layout/theme.liquid, inside <head>, add:
+ * In layout/theme.liquid, inside the head tag, add:
  *   {{ 'mattheuse.css' | asset_url | stylesheet_tag }}
  * (Shopify strips the .liquid extension automatically when
  *  building the asset URL.)
@@ -38,7 +38,7 @@
 
 @font-face {
   font-family: 'HelveticaNowDisplay-Medium';
-  src: url('{{ "HelveticaNowDisplay-Medium.ttf" | asset_url }}') format('truetype');
+  src: local('Helvetica Neue'), local('Arial');
   font-style: normal;
   font-weight: 500;
   font-display: swap;
@@ -46,7 +46,7 @@
 
 @font-face {
   font-family: 'HelveticaNowDisplay-ExtraBold';
-  src: url('{{ "HelveticaNowDisplay-ExtraBold.ttf" | asset_url }}') format('truetype');
+  src: local('Helvetica Neue'), local('Arial Bold'), local('Arial');
   font-style: normal;
   font-weight: 800;
   font-display: swap;
@@ -54,7 +54,7 @@
 
 @font-face {
   font-family: 'HelveticaNowDisplay-Regular';
-  src: url('{{ "HelveticaNowDisplay-Regular.ttf" | asset_url }}') format('truetype');
+  src: local('Helvetica Neue'), local('Arial');
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -155,7 +155,7 @@ h6,
 
 /* ── FAQ accordion bottom border ─────────────────────────── */
 /*
- * Horizon's <details> element doesn't add a bottom rule by
+ * Horizon's details element doesn't add a bottom rule by
  * default. This pseudo-element adds one after each closed item
  * to match the original Mattheuse design.
  */
