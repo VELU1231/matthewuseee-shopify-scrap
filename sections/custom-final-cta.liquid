@@ -66,7 +66,7 @@
     <div class="final-cta__buttons">
       {%- if section.settings.btn_primary_label != blank -%}
         <a
-          href="{{ section.settings.btn_primary_url | default: '/collections/all' }}"
+          href="{{ section.settings.btn_primary_url | default: routes.all_products_collection_url }}"
           class="final-cta__btn final-cta__btn--primary"
         >
           {{- section.settings.btn_primary_label | escape -}}
@@ -75,7 +75,7 @@
 
       {%- if section.settings.btn_secondary_label != blank -%}
         <a
-          href="{{ section.settings.btn_secondary_url | default: '/products/mattheusse-discovery-set' }}"
+          href="{{ section.settings.btn_secondary_url | default: routes.all_products_collection_url }}"
           class="final-cta__btn final-cta__btn--secondary"
         >
           {{- section.settings.btn_secondary_label | escape -}}

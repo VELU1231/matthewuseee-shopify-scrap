@@ -237,7 +237,7 @@
 
 {%- comment -%} Background image {%- endcomment -%}
 {%- if section.settings.bg_image != blank -%}
-  {%- assign _hero_alt = section.settings.bg_image.alt | default: '' | escape -%}
+  {%- assign hero_alt = section.settings.bg_image.alt | default: '' | escape -%}
   {{
     section.settings.bg_image
     | image_url: width: 2000
@@ -245,7 +245,7 @@
       class: 'hero__bg',
       loading: 'eager',
       fetchpriority: 'high',
-      alt: _hero_alt,
+      alt: hero_alt,
       widths: '750, 1100, 1500, 1800, 2000',
       sizes: '100vw'
   }}

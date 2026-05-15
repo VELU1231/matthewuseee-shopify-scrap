@@ -27,6 +27,11 @@
   assign review_blocks = section.blocks | where: "type", "review"
   assign total = review_blocks.size
   assign cols_desktop = section.settings.columns_desktop | default: 3
+  assign total_slides = total | divided_by: cols_desktop
+  assign total_mod = total | modulo: cols_desktop
+  if total_mod > 0
+    assign total_slides = total_slides | plus: 1
+  endif
   assign bg_color = section.settings.background_color
   assign text_color = section.settings.text_color
   assign card_bg = section.settings.card_background
@@ -185,13 +190,13 @@
   }
 
   /* Active dot per slide — generated below */
-  {% for i in (1..total) %}
+  {% for i in (1..total_slides) %}
     #shopify-section-{{ section_id }} .reviews__radio--{{ i }}:checked
     ~ .reviews__inner .reviews__carousel .reviews__track {
-      transform: translateX(-{{ i | minus: 1 | divided_by: cols_desktop | times: 100 }}%);
+      transform: translateX(-{{ i | minus: 1 | times: 100 }}%);
     }
     #shopify-section-{{ section_id }} .reviews__radio--{{ i }}:checked
-    ~ .reviews__inner .reviews__dots .reviews__dot--{{ i | minus: 1 | divided_by: cols_desktop | plus: 1 }} {
+    ~ .reviews__inner .reviews__dots .reviews__dot--{{ i }} {
       opacity: 1;
     }
   {% endfor %}
@@ -213,14 +218,14 @@
   First one is checked by default (shows slide 1).
   Labels for each input are the dot buttons below.
 {%- endcomment -%}
-{%- for block in review_blocks -%}
+{%- for i in (1..total_slides) -%}
   <input
-    class="reviews__radio reviews__radio--{{ forloop.index }}"
+    class="reviews__radio reviews__radio--{{ i }}"
     type="radio"
     name="reviews-carousel-{{ section_id }}"
-    id="reviews-dot-{{ section_id }}-{{ forloop.index }}"
+    id="reviews-dot-{{ section_id }}-{{ i }}"
     {% if forloop.first %}checked{% endif %}
-    aria-label="Show review {{ forloop.index }}"
+    aria-label="Show review slide {{ i }}"
   >
 {%- endfor -%}
 
@@ -233,71 +238,51 @@
   <div class="reviews__carousel" aria-label="Customer reviews">
 
     <div class="reviews__track">
-      {%- comment -%}
-        Each "slide" is a full row of cards.
-        We group blocks into pages of `cols_desktop` cards.
-        Liquid doesn't have modulo chunking built-in, so we
-        iterate and emit a new slide div every N blocks.
-      {%- endcomment -%}
+      {%- for i in (1..total_slides) -%}
+        {%- assign start_index = i | minus: 1 | times: cols_desktop -%}
+        <div
+          class="reviews__slide"
+          role="group"
+          aria-label="Slide {{ i }}"
+        >
+          {%- for block in review_blocks limit: cols_desktop offset: start_index -%}
+            {%- comment -%}
+              Review card.
+              block.shopify_attributes is mandatory for each block
+              element so the theme editor can select/reorder blocks.
+              Ref: shopify.dev/docs/api/liquid/objects/block
+            {%- endcomment -%}
+            <article class="review-card" {{ block.shopify_attributes }}>
 
-      {%- assign slide_index = 0 -%}
-      {%- assign card_count = 0 -%}
+              {%- comment -%} Star rating — fixed 5 stars per card {%- endcomment -%}
+              <div class="review-card__stars" aria-label="5 out of 5 stars">
+                {%- for star in (1..5) -%}
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                {%- endfor -%}
+              </div>
 
-      {%- for block in review_blocks -%}
-        {%- assign card_count_mod = card_count | modulo: cols_desktop -%}
+              {%- comment -%} Review body {%- endcomment -%}
+              {%- if block.settings.text != blank -%}
+                <p class="review-card__text">
+                  &#8220;{{ block.settings.text | escape }}&#8221;
+                </p>
+              {%- endif -%}
 
-        {%- if card_count_mod == 0 -%}
-          {%- if card_count > 0 -%}</div>{%- endif -%}  {%- comment -%} close previous slide {%- endcomment -%}
-          {%- assign slide_index = slide_index | plus: 1 -%}
-          <div
-            class="reviews__slide"
-            role="group"
-            aria-label="Slide {{ slide_index }}"
-          >
-        {%- endif -%}
+              {%- comment -%} Reviewer name + verified badge {%- endcomment -%}
+              <div class="review-card__meta">
+                {%- if block.settings.reviewer_name != blank -%}
+                  <span class="review-card__name">{{ block.settings.reviewer_name | escape }}</span>
+                {%- endif -%}
+                {%- if block.settings.show_verified -%}
+                  <span class="review-card__badge">Verified Buyer</span>
+                {%- endif -%}
+              </div>
 
-        {%- comment -%}
-          Review card.
-          block.shopify_attributes is mandatory for each block
-          element so the theme editor can select/reorder blocks.
-          Ref: shopify.dev/docs/api/liquid/objects/block
-        {%- endcomment -%}
-        <article class="review-card" {{ block.shopify_attributes }}>
-
-          {%- comment -%} Star rating — fixed 5 stars per card {%- endcomment -%}
-          <div class="review-card__stars" aria-label="5 out of 5 stars">
-            {%- for i in (1..5) -%}
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-            {%- endfor -%}
-          </div>
-
-          {%- comment -%} Review body {%- endcomment -%}
-          {%- if block.settings.text != blank -%}
-            <p class="review-card__text">
-              &#8220;{{ block.settings.text | escape }}&#8221;
-            </p>
-          {%- endif -%}
-
-          {%- comment -%} Reviewer name + verified badge {%- endcomment -%}
-          <div class="review-card__meta">
-            {%- if block.settings.reviewer_name != blank -%}
-              <span class="review-card__name">{{ block.settings.reviewer_name | escape }}</span>
-            {%- endif -%}
-            {%- if block.settings.show_verified -%}
-              <span class="review-card__badge">Verified Buyer</span>
-            {%- endif -%}
-          </div>
-
-        </article>
-
-        {%- assign card_count = card_count | plus: 1 -%}
-
-        {%- if forloop.last -%}
-          </div>  {%- comment -%} close final slide {%- endcomment -%}
-        {%- endif -%}
-
+            </article>
+          {%- endfor -%}
+        </div>
       {%- endfor -%}
 
     </div>{%- comment -%} .reviews__track {%- endcomment -%}
@@ -309,13 +294,12 @@
     via the `for` attribute. Clicking a label checks the radio,
     which triggers the :checked CSS rules above.
   {%- endcomment -%}
-  {%- assign total_slides = slide_index -%}
   {%- if total_slides > 1 -%}
     <nav class="reviews__dots" aria-label="Carousel navigation">
       {%- for i in (1..total_slides) -%}
         <label
           class="reviews__dot reviews__dot--{{ i }}"
-          for="reviews-dot-{{ section_id }}-{{ i | times: cols_desktop | minus: cols_desktop | plus: 1 }}"
+          for="reviews-dot-{{ section_id }}-{{ i }}"
           aria-label="Go to slide {{ i }}"
         ></label>
       {%- endfor -%}

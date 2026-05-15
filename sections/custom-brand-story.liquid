@@ -29,14 +29,14 @@
     {%- comment -%} Image column {%- endcomment -%}
     <div class="brand-story__media">
       {%- if img != blank -%}
-        {%- assign _brand_alt = section.settings.heading | default: '' | escape -%}
+        {%- assign brand_alt = section.settings.heading | default: '' | escape -%}
         {{
           img
           | image_url: width: 1200
           | image_tag:
             loading: 'lazy',
             class: 'brand-story__image',
-            alt: _brand_alt,
+            alt: brand_alt,
             widths: '600, 800, 1000, 1200'
         }}
       {%- else -%}
@@ -65,7 +65,7 @@
 
       {%- if section.settings.btn_label != blank -%}
         <a
-          href="{{ section.settings.btn_url | default: '/pages/about' }}"
+          href="{{ section.settings.btn_url | default: routes.root_url }}"
           class="brand-story__btn btn"
         >
           {{- section.settings.btn_label | escape -}}
